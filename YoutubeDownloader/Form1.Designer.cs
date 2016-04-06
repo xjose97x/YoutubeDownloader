@@ -42,6 +42,7 @@
             this.lblFileName = new System.Windows.Forms.Label();
             this.lblDecorateProgressBar = new System.Windows.Forms.Label();
             this.pgDownload = new System.Windows.Forms.ProgressBar();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).BeginInit();
             this.SuspendLayout();
             // 
@@ -79,6 +80,7 @@
             this.btnDownloadFolder.TabIndex = 3;
             this.btnDownloadFolder.Text = "Choose";
             this.btnDownloadFolder.UseVisualStyleBackColor = true;
+            this.btnDownloadFolder.Click += new System.EventHandler(this.btnDownloadFolder_Click);
             // 
             // chkOpenAfterDownload
             // 
@@ -110,6 +112,9 @@
             // cboFileType
             // 
             this.cboFileType.FormattingEnabled = true;
+            this.cboFileType.Items.AddRange(new object[] {
+            "Video",
+            "MP3"});
             this.cboFileType.Location = new System.Drawing.Point(609, 197);
             this.cboFileType.Name = "cboFileType";
             this.cboFileType.Size = new System.Drawing.Size(74, 21);
@@ -123,6 +128,7 @@
             this.btnDownload.TabIndex = 8;
             this.btnDownload.Text = "Download";
             this.btnDownload.UseVisualStyleBackColor = true;
+            this.btnDownload.Click += new System.EventHandler(this.btnDownload_Click);
             // 
             // lblDecorateCurrentFile
             // 
@@ -202,6 +208,7 @@
         private System.Windows.Forms.Label lblFileName;
         private System.Windows.Forms.Label lblDecorateProgressBar;
         private System.Windows.Forms.ProgressBar pgDownload;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
 
