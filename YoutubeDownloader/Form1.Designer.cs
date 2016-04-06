@@ -1,6 +1,6 @@
 ﻿namespace YoutubeDownloader
 {
-    partial class Form1
+    partial class frmYTDownloader
     {
         /// <summary>
         /// Required designer variable.
@@ -28,12 +28,40 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmYTDownloader));
+            this.picBox = new System.Windows.Forms.PictureBox();
+            ((System.ComponentModel.ISupportInitialize)(this.picBox)).BeginInit();
+            this.SuspendLayout();
+            // 
+            // picBox
+            // 
+            this.picBox.Image = ((System.Drawing.Image)(resources.GetObject("picBox.Image")));
+            this.picBox.Location = new System.Drawing.Point(326, 12);
+            this.picBox.Name = "picBox";
+            this.picBox.Size = new System.Drawing.Size(147, 107);
+            this.picBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picBox.TabIndex = 0;
+            this.picBox.TabStop = false;
+            // 
+            // frmYTDownloader
+            // 
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(834, 311);
+            this.Controls.Add(this.picBox);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Name = "frmYTDownloader";
+            this.Text = "Youtube Downloader";
+            this.Load += new System.EventHandler(this.Form1_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.picBox)).EndInit();
+            this.ResumeLayout(false);
+
         }
 
         #endregion
+
+        private System.Windows.Forms.PictureBox picBox;
     }
 }
 
