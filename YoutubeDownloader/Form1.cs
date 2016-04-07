@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using YoutubeExtractor;
+using System.IO;
+using System.Diagnostics;
+using System.Net;
 
 namespace YoutubeDownloader
 {
@@ -17,56 +19,141 @@ namespace YoutubeDownloader
         public frmYTDownloader()
         {
             InitializeComponent();
-            //Set video as default choice.  0 = Video, 1 = MP3.
-            cboFileType.SelectedIndex = 0;
-            //Gets path to 'my documents' and sets path the path of the browser dialog.
+            cboFileType.SelectedIndex = 0;//set video as first choice
+            //line below gets path to my documents
             string folder = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+            //sets the path of the browser dialog box 
             folderBrowserDialog1.SelectedPath = folder;
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-
         }
 
         private void btnDownloadFolder_Click(object sender, EventArgs e)
         {
             DialogResult result = folderBrowserDialog1.ShowDialog();
-            if(result == DialogResult.OK)
-            {
+            if (result == DialogResult.OK) //if user clicks ok
+                //set selected path to display in download folder text box
                 txtDownloadFolder.Text = folderBrowserDialog1.SelectedPath;
-            }
         }
 
         private void btnDownload_Click(object sender, EventArgs e)
         {
-            Tuple<bool, string> isLinkGood = ValidateLink();
-            if(isLinkGood.Item1)
+            Tuple<bool, string> isLinkGood = ValidateLink(); //get link validation results
+            if (isLinkGood.Item1 == true)
             {
-                RestrictAccessibility();
-                System.Threading.Thread.Sleep(2000);
-                EnableAccessibility();
-                MessageBox.Show("Is it a good link?" + isLinkGood.Item1 + "Link is: " + isLinkGood.Item2);
+                //Image Preview
+                backgroundWorker1.RunWorkerAsync(isLinkGood.Item2);
+                RestrictAccessibility();//call this to ensure controls don't work during a download
+                Download(isLinkGood.Item2);
             }
         }
 
-        private void EnableAccessibility()
+        private void Download(string validatedLink)
         {
-            lblFileName.Text = "";
-            txtLink.Text = "";
-            btnDownload.Enabled = true;
-            cboFileType.Enabled = true;
-            btnDownloadFolder.Enabled = true;
-            txtDownloadFolder.Enabled = true;
-            txtLink.Enabled = true;
-            pgDownload.Value = 0;
+            if (cboFileType.SelectedIndex == 0)
+            {
+                YouTubeVideoModel videoDownloader = new YouTubeVideoModel();
+                videoDownloader.Link = validatedLink;
+                videoDownloader.FolderPath = txtDownloadFolder.Text;
+                DownloadVideo(videoDownloader);
+            }
+            else
+            {
+                YouTubeAudioModel audioDownloader = new YouTubeAudioModel();
+                audioDownloader.Link = validatedLink;
+                audioDownloader.FolderPath = txtDownloadFolder.Text;
+                DownloadAudio(audioDownloader);
+            }
         }
 
+        private void DownloadAudio(YouTubeAudioModel audioDownloader)
+        {
+            try
+            {
+                //Store VideoInfo object in model
+                audioDownloader.VideoInfo = FileDownloader.GetVideoInfos(audioDownloader);
+                //Stores VideoInfo object in model
+                audioDownloader.Video = FileDownloader.GetVideoInfoAudioOnly(audioDownloader);
+                //Update Label
+                UpdateLabel(audioDownloader.Video.Title + audioDownloader.Video.VideoExtension);
+                //Stores FilePath in model
+                audioDownloader.FilePath = FileDownloader.GetPath(audioDownloader);
+                audioDownloader.FilePath += audioDownloader.Video.VideoExtension;
+                //Stores VideoDownloaderType object in model
+                audioDownloader.AudioDownloaderType = FileDownloader.GetAudioDownloader(audioDownloader);
+                //Stop timer after download
+                audioDownloader.AudioDownloaderType.DownloadFinished += (sender, args) => timer1.Stop();
+                //Enable interface once download is complete
+                audioDownloader.AudioDownloaderType.DownloadFinished += (sender, args) => EnableAccessibility();
+                //open folder with downloaded file selected
+                audioDownloader.AudioDownloaderType.DownloadFinished += (sender, args) => OpenFolder(audioDownloader.FilePath);
+                audioDownloader.AudioDownloaderType.DownloadProgressChanged += (sender, args) => pgDownload.Value = (int)args.ProgressPercentage;
+                CheckForIllegalCrossThreadCalls = false;
+                //download video
+                FileDownloader.DownloadAudio(audioDownloader);
+
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Download canceled.");
+                EnableAccessibility();
+            }
+        }
+
+        private void DownloadVideo(YouTubeVideoModel videoDownloader)
+        {
+            try
+            {
+                //Store VideoInfo object in model
+                videoDownloader.VideoInfo = FileDownloader.GetVideoInfos(videoDownloader);
+                //Stores VideoInfo object in model
+                videoDownloader.Video = FileDownloader.GetVideoInfo(videoDownloader);
+                //Update Label
+                UpdateLabel(videoDownloader.Video.Title + videoDownloader.Video.VideoExtension);
+                //Stores FilePath in model
+                videoDownloader.FilePath = FileDownloader.GetPath(videoDownloader);
+                videoDownloader.FilePath += videoDownloader.Video.VideoExtension;
+                //Stores VideoDownloaderType object in model
+                videoDownloader.VideoDownloaderType = FileDownloader.GetVideoDownloader(videoDownloader);
+                //Stop timer after download
+                videoDownloader.VideoDownloaderType.DownloadFinished += (sender, args) => timer1.Stop();
+                //Enable interface once download is complete
+                videoDownloader.VideoDownloaderType.DownloadFinished += (sender, args) => EnableAccessibility();
+                //open folder with downloaded file selected
+                videoDownloader.VideoDownloaderType.DownloadFinished += (sender, args) => OpenFolder(videoDownloader.FilePath);
+                videoDownloader.VideoDownloaderType.DownloadProgressChanged += (sender, args) => pgDownload.Value = (int)args.ProgressPercentage;
+                CheckForIllegalCrossThreadCalls = false;
+                //download video
+                FileDownloader.DownloadVideo(videoDownloader);
+
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("Download canceled.");
+                EnableAccessibility();
+            }
+        }
+
+        private void UpdateLabel(string titleAndExtension)
+        {
+            lblFileName.Text = titleAndExtension;
+        }
+
+        private void OpenFolder(string filePath)
+        {
+            string argument = "/select, \"" + filePath + "\"";
+            if (chkOpenAfterDownload.Checked == true)
+                Process.Start("explorer.exe", argument);
+        }
+        private void EnableAccessibility()
+        {
+            lblFileName.Text = "";//clear file name label
+            txtLink.Text = "";//clear the link from the link text box
+            btnDownload.Enabled = true;//reenable the download button
+            btnDownloadFolder.Enabled = true;//enable button for choosing folders
+            txtLink.Enabled = true;//enable link box
+            txtDownloadFolder.Enabled = true;//enable download folder text box
+            cboFileType.Enabled = true;//enable combo box
+            pgDownload.Value = 0;//zero out progress bar
+        }
         private void RestrictAccessibility()
         {
             btnDownload.Enabled = false;
@@ -78,20 +165,64 @@ namespace YoutubeDownloader
 
         private Tuple<bool, string> ValidateLink()
         {
-            string normalURL;
-            if (!Directory.Exists(txtDownloadFolder.Text))  
+            string normalURL;//normalized URL from YouTube
+            if (!Directory.Exists(txtDownloadFolder.Text))
             {
-                MessageBox.Show("Please enter a valid folder.");
+                MessageBox.Show("Please enter a valid folder."); //block runs when folder cannot be found
                 return Tuple.Create(false, "");
             }
             else if (DownloadUrlResolver.TryNormalizeYoutubeUrl(txtLink.Text, out normalURL))
             {
-                return Tuple.Create(true, normalURL);
+                return Tuple.Create(true, normalURL);//return true and actual link if successful
             }
             else
             {
-                MessageBox.Show("Please enter a valid link.");
-                return Tuple.Create(false, "");
+                MessageBox.Show("Please enter a valid YouTube link.");
+                return Tuple.Create(false, "");//return nothing if the link is not good
+            }
+        }
+
+        private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            CheckForIllegalCrossThreadCalls = false;
+            string link = e.Argument as string;
+            string youtubeCode = link.Substring(link.Length - 11, 11);
+            string imageLink1 = "http://img.youtube.com/vi/" + youtubeCode + "/1.jpg";
+            string imageLink2 = "http://img.youtube.com/vi/" + youtubeCode + "/2.jpg";
+            string imageLink3 = "http://img.youtube.com/vi/" + youtubeCode + "/3.jpg";
+            using (var client = new WebClient())
+            {
+                client.DownloadFile(imageLink1, "1.jpg");
+                client.DownloadFile(imageLink2, "2.jpg");
+                client.DownloadFile(imageLink3, "3.jpg");
+            }
+            picPreviewBox.ImageLocation = "1.jpg";
+
+        }
+
+        private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            timer1.Start();
+            timer1.Interval = 500;
+        }
+
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            if(picPreviewBox.ImageLocation == null)
+            {
+                picPreviewBox.ImageLocation = "1.jpg";
+            }
+            if (picPreviewBox.ImageLocation == "1.jpg")
+            {
+                picPreviewBox.ImageLocation = "2.jpg";
+            }
+            else if (picPreviewBox.ImageLocation == "2.jpg")
+            {
+                picPreviewBox.ImageLocation = "3.jpg";
+            }
+            else if (picPreviewBox.ImageLocation == "3.jpg")
+            {
+                picPreviewBox.ImageLocation = "1.jpg";
             }
         }
     }

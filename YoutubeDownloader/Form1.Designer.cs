@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmYTDownloader));
             this.picBox = new System.Windows.Forms.PictureBox();
             this.lblDecorateFolderBox = new System.Windows.Forms.Label();
@@ -43,15 +44,19 @@
             this.lblDecorateProgressBar = new System.Windows.Forms.Label();
             this.pgDownload = new System.Windows.Forms.ProgressBar();
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
+            this.picPreviewBox = new System.Windows.Forms.PictureBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.timer1 = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreviewBox)).BeginInit();
             this.SuspendLayout();
             // 
             // picBox
             // 
             this.picBox.Image = ((System.Drawing.Image)(resources.GetObject("picBox.Image")));
-            this.picBox.Location = new System.Drawing.Point(344, 28);
+            this.picBox.Location = new System.Drawing.Point(379, 33);
             this.picBox.Name = "picBox";
-            this.picBox.Size = new System.Drawing.Size(147, 107);
+            this.picBox.Size = new System.Drawing.Size(182, 124);
             this.picBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picBox.TabIndex = 0;
             this.picBox.TabStop = false;
@@ -59,7 +64,7 @@
             // lblDecorateFolderBox
             // 
             this.lblDecorateFolderBox.AutoSize = true;
-            this.lblDecorateFolderBox.Location = new System.Drawing.Point(17, 165);
+            this.lblDecorateFolderBox.Location = new System.Drawing.Point(21, 202);
             this.lblDecorateFolderBox.Name = "lblDecorateFolderBox";
             this.lblDecorateFolderBox.Size = new System.Drawing.Size(83, 13);
             this.lblDecorateFolderBox.TabIndex = 1;
@@ -67,14 +72,14 @@
             // 
             // txtDownloadFolder
             // 
-            this.txtDownloadFolder.Location = new System.Drawing.Point(148, 165);
+            this.txtDownloadFolder.Location = new System.Drawing.Point(141, 202);
             this.txtDownloadFolder.Name = "txtDownloadFolder";
-            this.txtDownloadFolder.Size = new System.Drawing.Size(454, 20);
+            this.txtDownloadFolder.Size = new System.Drawing.Size(537, 20);
             this.txtDownloadFolder.TabIndex = 2;
             // 
             // btnDownloadFolder
             // 
-            this.btnDownloadFolder.Location = new System.Drawing.Point(609, 165);
+            this.btnDownloadFolder.Location = new System.Drawing.Point(695, 202);
             this.btnDownloadFolder.Name = "btnDownloadFolder";
             this.btnDownloadFolder.Size = new System.Drawing.Size(75, 23);
             this.btnDownloadFolder.TabIndex = 3;
@@ -85,28 +90,27 @@
             // chkOpenAfterDownload
             // 
             this.chkOpenAfterDownload.AutoSize = true;
-            this.chkOpenAfterDownload.Location = new System.Drawing.Point(690, 165);
+            this.chkOpenAfterDownload.Location = new System.Drawing.Point(791, 202);
             this.chkOpenAfterDownload.Name = "chkOpenAfterDownload";
             this.chkOpenAfterDownload.Size = new System.Drawing.Size(128, 17);
             this.chkOpenAfterDownload.TabIndex = 4;
             this.chkOpenAfterDownload.Text = "Open After Download";
             this.chkOpenAfterDownload.UseVisualStyleBackColor = true;
-            this.chkOpenAfterDownload.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
             // 
             // lblDecorateURLBox
             // 
             this.lblDecorateURLBox.AutoSize = true;
-            this.lblDecorateURLBox.Location = new System.Drawing.Point(17, 197);
+            this.lblDecorateURLBox.Location = new System.Drawing.Point(21, 261);
             this.lblDecorateURLBox.Name = "lblDecorateURLBox";
-            this.lblDecorateURLBox.Size = new System.Drawing.Size(75, 13);
+            this.lblDecorateURLBox.Size = new System.Drawing.Size(79, 13);
             this.lblDecorateURLBox.TabIndex = 5;
-            this.lblDecorateURLBox.Text = "Youtube URL:";
+            this.lblDecorateURLBox.Text = "YouTube URL:";
             // 
             // txtLink
             // 
-            this.txtLink.Location = new System.Drawing.Point(148, 197);
+            this.txtLink.Location = new System.Drawing.Point(141, 261);
             this.txtLink.Name = "txtLink";
-            this.txtLink.Size = new System.Drawing.Size(454, 20);
+            this.txtLink.Size = new System.Drawing.Size(537, 20);
             this.txtLink.TabIndex = 6;
             // 
             // cboFileType
@@ -115,14 +119,14 @@
             this.cboFileType.Items.AddRange(new object[] {
             "Video",
             "MP3"});
-            this.cboFileType.Location = new System.Drawing.Point(609, 197);
+            this.cboFileType.Location = new System.Drawing.Point(695, 261);
             this.cboFileType.Name = "cboFileType";
-            this.cboFileType.Size = new System.Drawing.Size(74, 21);
+            this.cboFileType.Size = new System.Drawing.Size(75, 21);
             this.cboFileType.TabIndex = 7;
             // 
             // btnDownload
             // 
-            this.btnDownload.Location = new System.Drawing.Point(690, 197);
+            this.btnDownload.Location = new System.Drawing.Point(791, 261);
             this.btnDownload.Name = "btnDownload";
             this.btnDownload.Size = new System.Drawing.Size(75, 23);
             this.btnDownload.TabIndex = 8;
@@ -133,7 +137,7 @@
             // lblDecorateCurrentFile
             // 
             this.lblDecorateCurrentFile.AutoSize = true;
-            this.lblDecorateCurrentFile.Location = new System.Drawing.Point(17, 237);
+            this.lblDecorateCurrentFile.Location = new System.Drawing.Point(21, 313);
             this.lblDecorateCurrentFile.Name = "lblDecorateCurrentFile";
             this.lblDecorateCurrentFile.Size = new System.Drawing.Size(91, 13);
             this.lblDecorateCurrentFile.TabIndex = 9;
@@ -142,16 +146,15 @@
             // lblFileName
             // 
             this.lblFileName.AutoSize = true;
-            this.lblFileName.Location = new System.Drawing.Point(148, 237);
+            this.lblFileName.Location = new System.Drawing.Point(141, 313);
             this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(35, 13);
+            this.lblFileName.Size = new System.Drawing.Size(0, 13);
             this.lblFileName.TabIndex = 10;
-            this.lblFileName.Text = "label1";
             // 
             // lblDecorateProgressBar
             // 
             this.lblDecorateProgressBar.AutoSize = true;
-            this.lblDecorateProgressBar.Location = new System.Drawing.Point(17, 259);
+            this.lblDecorateProgressBar.Location = new System.Drawing.Point(21, 357);
             this.lblDecorateProgressBar.Name = "lblDecorateProgressBar";
             this.lblDecorateProgressBar.Size = new System.Drawing.Size(102, 13);
             this.lblDecorateProgressBar.TabIndex = 11;
@@ -159,16 +162,34 @@
             // 
             // pgDownload
             // 
-            this.pgDownload.Location = new System.Drawing.Point(148, 259);
+            this.pgDownload.Location = new System.Drawing.Point(141, 357);
             this.pgDownload.Name = "pgDownload";
-            this.pgDownload.Size = new System.Drawing.Size(454, 23);
+            this.pgDownload.Size = new System.Drawing.Size(537, 23);
             this.pgDownload.TabIndex = 12;
+            // 
+            // picPreviewBox
+            // 
+            this.picPreviewBox.Location = new System.Drawing.Point(656, 33);
+            this.picPreviewBox.Name = "picPreviewBox";
+            this.picPreviewBox.Size = new System.Drawing.Size(199, 124);
+            this.picPreviewBox.TabIndex = 13;
+            this.picPreviewBox.TabStop = false;
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
+            // 
+            // timer1
+            // 
+            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // frmYTDownloader
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(834, 311);
+            this.ClientSize = new System.Drawing.Size(941, 419);
+            this.Controls.Add(this.picPreviewBox);
             this.Controls.Add(this.pgDownload);
             this.Controls.Add(this.lblDecorateProgressBar);
             this.Controls.Add(this.lblFileName);
@@ -185,9 +206,9 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "frmYTDownloader";
-            this.Text = "Youtube Downloader";
-            this.Load += new System.EventHandler(this.Form1_Load);
+            this.Text = "YouTube Downloader";
             ((System.ComponentModel.ISupportInitialize)(this.picBox)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picPreviewBox)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -209,6 +230,8 @@
         private System.Windows.Forms.Label lblDecorateProgressBar;
         private System.Windows.Forms.ProgressBar pgDownload;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
+        private System.Windows.Forms.PictureBox picPreviewBox;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
+        private System.Windows.Forms.Timer timer1;
     }
 }
-
